@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clone Amplify - AI Code Amplification Engine</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1a2e4a 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem;
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, #00d4ff, #ff1e7e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            color: #94a3b8;
+            font-size: 0.95rem;
+        }
+        
+        .card {
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #00d4ff;
+            font-size: 0.9rem;
+        }
+        
+        .help-text {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-top: 0.25rem;
+        }
+        
+        input[type="text"],
+        input[type="text"]#destPath {
+            width: 100%;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 0.5rem;
+            color: #e2e8f0;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #00d4ff;
+            background: rgba(0, 212, 255, 0.05);
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+        }
+        
+        .preview {
+            background: rgba(0, 212, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            display: none;
+        }
+        
+        .preview.show {
+            display: block;
+        }
+        
+        .preview-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            color: #cbd5e1;
+        }
+        
+        .preview-item strong {
+            color: #00d4ff;
+        }
+        
+        .validation-message {
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+        
+        .validation-message.error {
+            color: #ff1e7e;
+            display: block;
+        }
+        
+        .validation-message.success {
+            color: #00d4ff;
+            display: block;
+        }
+        
+        .suggestions {
+            margin-top: 1rem;
+        }
+        
+        .suggestions-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .suggestion {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #00d4ff;
+        }
+        
+        .suggestion:hover {
+            background: rgba(0, 212, 255, 0.2);
+            border-color: #00d4ff;
+        }
+        
+        .estimate {
+            background: rgba(255, 107, 157, 0.05);
+            border: 1px solid rgba(255, 107, 157, 0.2);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-size: 0.85rem;
+            display: none;
+        }
+        
+        .estimate.show {
+            display: block;
+        }
+        
+        .estimate-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            color: #cbd5e1;
+        }
+        
+        .estimate-row strong {
+            color: #ff6b9d;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        button {
+            flex: 1;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            color: #0f172a;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 212, 255, 0.3);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: #00d4ff;
+            border: 1px solid #00d4ff;
+        }
+        
+        .btn-secondary:hover:not(:disabled) {
+            background: rgba(0, 212, 255, 0.1);
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+        }
+        
+        .loading.show {
+            display: block;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(0, 212, 255, 0.2);
+            border-top-color: #00d4ff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .result {
+            background: rgba(0, 212, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            display: none;
+        }
+        
+        .result.show {
+            display: block;
+        }
+        
+        .result.success {
+            border-color: rgba(0, 212, 255, 0.5);
+        }
+        
+        .result.error {
+            background: rgba(255, 30, 126, 0.05);
+            border-color: rgba(255, 30, 126, 0.3);
+        }
+        
+        .result-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #00d4ff;
+        }
+        
+        .result.error .result-title {
+            color: #ff1e7e;
+        }
+        
+        .result-message {
+            color: #cbd5e1;
+            margin-bottom: 1rem;
+        }
+        
+        .result-path {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.85rem;
+            word-break: break-all;
+            color: #00d4ff;
+            margin-bottom: 1rem;
+        }
+        
+        .next-steps {
+            margin-top: 1rem;
+        }
+        
+        .next-steps h4 {
+            color: #00d4ff;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .next-steps ol {
+            margin-left: 1.5rem;
+            color: #cbd5e1;
+            font-size: 0.9rem;
+        }
+        
+        .next-steps li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .info-box {
+            background: rgba(255, 107, 157, 0.05);
+            border-left: 3px solid #ff6b9d;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .info-box p {
+            color: #cbd5e1;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+        
+        .auth-buttons {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            z-index: 1000;
+        }
+        
+        .auth-btn {
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .auth-btn-login {
+            background: transparent;
+            color: #00d4ff;
+            border: 1px solid #00d4ff;
+        }
+        
+        .auth-btn-login:hover {
+            background: rgba(0, 212, 255, 0.1);
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+        }
+        
+        .auth-btn-signup {
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            color: #0f172a;
+        }
+        
+        .auth-btn-signup:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 212, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-buttons">
+        <button class="auth-btn auth-btn-login" onclick="window.location.href='/chat'" title="Chat with Amplify">💬 Chat</button>
+        <button class="auth-btn auth-btn-login" onclick="openAuthModal('login')">Login</button>
+        <button class="auth-btn auth-btn-signup" onclick="openAuthModal('signup')">Sign Up</button>
+    </div>
+    
+    <div id="authModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:2000; align-items:center; justify-content:center;">
+        <div style="background:rgba(15,23,42,0.95); border:1px solid rgba(0,212,255,0.2); border-radius:1rem; padding:2rem; max-width:400px; width:90%;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+                <h2 id="modalTitle" style="color:#00d4ff; margin:0; font-size:1.5rem;">Login</h2>
+                <button onclick="closeAuthModal()" style="background:none; border:none; color:#00d4ff; font-size:1.5rem; cursor:pointer;">✕</button>
+            </div>
+            <form id="authForm" onsubmit="handleAuthSubmit(event)">
+                <div id="emailGroup" style="margin-bottom:1rem;">
+                    <label style="display:block; margin-bottom:0.5rem; color:#00d4ff; font-weight:600;">Email</label>
+                    <input type="email" id="authEmail" name="email" required style="width:100%; padding:0.75rem; background:rgba(255,255,255,0.05); border:1px solid rgba(0,212,255,0.3); border-radius:0.5rem; color:#e2e8f0; font-size:1rem;">
+                </div>
+                <div id="usernameGroup" style="margin-bottom:1rem; display:none;">
+                    <label style="display:block; margin-bottom:0.5rem; color:#00d4ff; font-weight:600;">Username</label>
+                    <input type="text" id="authUsername" name="username" style="width:100%; padding:0.75rem; background:rgba(255,255,255,0.05); border:1px solid rgba(0,212,255,0.3); border-radius:0.5rem; color:#e2e8f0; font-size:1rem;">
+                </div>
+                <div style="margin-bottom:1rem;">
+                    <label style="display:block; margin-bottom:0.5rem; color:#00d4ff; font-weight:600;">Password</label>
+                    <input type="password" id="authPassword" name="password" required style="width:100%; padding:0.75rem; background:rgba(255,255,255,0.05); border:1px solid rgba(0,212,255,0.3); border-radius:0.5rem; color:#e2e8f0; font-size:1rem;">
+                </div>
+                <div id="authMessage" style="margin-bottom:1rem; padding:0.75rem; border-radius:0.5rem; display:none;"></div>
+                <button type="submit" style="width:100%; padding:0.75rem; background:linear-gradient(135deg,#00d4ff,#0099ff); color:#0f172a; border:none; border-radius:0.5rem; font-weight:600; cursor:pointer; font-size:1rem;">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <svg class="logo" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#00d4ff;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#0099ff;stop-opacity:1" />
+                    </linearGradient>
+                    <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#ff6b9d;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#ff1e7e;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                <circle cx="128" cy="128" r="128" fill="#0f172a" opacity="0.95"/>
+                <g stroke="url(#grad1)" stroke-width="3" fill="none" stroke-linecap="round">
+                    <path d="M 60 80 L 80 80 L 80 176 L 60 176" />
+                    <path d="M 196 80 L 176 80 L 176 176 L 196 176" />
+                </g>
+                <g fill="url(#grad2)">
+                    <path d="M 128 60 L 145 105 L 115 105 L 155 180 L 110 105 L 140 105 Z" />
+                </g>
+            </svg>
+            <h1>Clone Amplify</h1>
+            <p class="subtitle">Create a custom version of Amplify with your own app name</p>
+        </div>
+        
+        <div class="info-box">
+            <p>🔄 This tool will copy the entire Amplify repository and automatically replace all references to 'Amplify' with your custom app name.</p>
+        </div>
+        
+        <div class="card">
+            <form id="cloneForm">
+                <div class="form-group">
+                    <label for="appName">App Name *</label>
+                    <input 
+                        type="text" 
+                        id="appName" 
+                        name="appName" 
+                        placeholder="e.g., CodeBoost, AI Assistant, MyLLMApp"
+                        required
+                    >
+                    <div class="help-text">
+                        Use letters, numbers, spaces, hyphens, and underscores (2-50 characters)
+                    </div>
+                    <div id="validation-message" class="validation-message"></div>
+                    <div id="suggestions" class="suggestions" style="display: none;">
+                        <div class="help-text" style="margin-bottom: 0.5rem;">Did you mean:</div>
+                        <div class="suggestions-list" id="suggestionsList"></div>
+                    </div>
+                </div>
+                
+                <div id="preview" class="preview">
+                    <div class="preview-item">
+                        <strong>Docker Container:</strong>
+                        <span id="previewDocker">-</span>
+                    </div>
+                    <div class="preview-item">
+                        <strong>Environment Variable:</strong>
+                        <span id="previewEnv">-</span>
+                    </div>
+                    <div class="preview-item">
+                        <strong>Database Name:</strong>
+                        <span id="previewDb">-</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="destPath">Destination Path (optional)</label>
+                    <input 
+                        type="text" 
+                        id="destPath" 
+                        name="destPath" 
+                        placeholder="Leave blank for ~/&lt;app_name&gt;"
+                    >
+                    <div class="help-text">
+                        Path where the cloned repository will be created. Default: your home directory
+                    </div>
+                </div>
+                
+                <div id="estimate" class="estimate">
+                    <div class="estimate-row">
+                        <strong>Files to copy:</strong>
+                        <span id="estimateFiles">-</span>
+                    </div>
+                    <div class="estimate-row">
+                        <strong>Text files to update:</strong>
+                        <span id="estimateTextFiles">-</span>
+                    </div>
+                    <div class="estimate-row">
+                        <strong>Total size:</strong>
+                        <span id="estimateSize">-</span>
+                    </div>
+                </div>
+                
+                <div class="button-group">
+                    <button type="button" class="btn-secondary" id="btnEstimate">
+                        📊 Estimate
+                    </button>
+                    <button type="submit" class="btn-primary" id="btnClone">
+                        🚀 Clone Now
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Cloning repository...</p>
+            <p style="font-size: 0.85rem; color: #64748b;">This may take a minute...</p>
+        </div>
+        
+        <div id="result" class="result">
+            <div class="result-title" id="resultTitle">Clone Complete!</div>
+            <p class="result-message" id="resultMessage"></p>
+            <div id="resultPath" class="result-path" style="display: none;"></div>
+            <div id="nextSteps" class="next-steps"></div>
+            <button type="button" class="btn-primary" onclick="location.reload()">
+                Create Another Clone
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        const form = document.getElementById('cloneForm');
+        const appNameInput = document.getElementById('appName');
+        const destPathInput = document.getElementById('destPath');
+        const btnEstimate = document.getElementById('btnEstimate');
+        const btnClone = document.getElementById('btnClone');
+        const validation = document.getElementById('validation-message');
+        const preview = document.getElementById('preview');
+        const estimate = document.getElementById('estimate');
+        const loading = document.getElementById('loading');
+        const result = document.getElementById('result');
+        const suggestions = document.getElementById('suggestions');
+        
+        let validationTimeout;
+        let lastValidAppName = null;
+        
+        appNameInput.addEventListener('input', (e) => {
+            clearTimeout(validationTimeout);
+            const appName = e.target.value;
+            
+            if (!appName) {
+                preview.classList.remove('show');
+                suggestions.style.display = 'none';
+                validation.classList.remove('error', 'success');
+                return;
+            }
+            
+            validationTimeout = setTimeout(() => {
+                validateAppName(appName);
+            }, 500);
+        });
+        
+        async function validateAppName(appName) {
+            try {
+                const response = await fetch('/api/v1/clone/validate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ app_name: appName })
+                });
+                
+                const data = await response.json();
+                
+                if (data.valid) {
+                    validation.classList.remove('error');
+                    validation.classList.add('success');
+                    validation.textContent = '✓ Valid app name';
+                    suggestions.style.display = 'none';
+                    
+                    // Show preview
+                    if (data.preview) {
+                        document.getElementById('previewDocker').textContent = appName.toLowerCase().replace(/\s+/g, '-');
+                        document.getElementById('previewEnv').textContent = appName.toUpperCase().replace(/\s+/g, '_');
+                        document.getElementById('previewDb').textContent = appName.toLowerCase().replace(/\s+/g, '_');
+                        preview.classList.add('show');
+                    }
+                    
+                    lastValidAppName = appName;
+                    btnEstimate.disabled = false;
+                    btnClone.disabled = false;
+                } else {
+                    validation.classList.remove('success');
+                    validation.classList.add('error');
+                    validation.textContent = '✗ ' + data.error;
+                    preview.classList.remove('show');
+                    lastValidAppName = null;
+                    btnEstimate.disabled = true;
+                    btnClone.disabled = true;
+                    
+                    if (data.suggested_names && data.suggested_names.length > 0) {
+                        const suggestionsList = document.getElementById('suggestionsList');
+                        suggestionsList.innerHTML = data.suggested_names
+                            .map(name => `
+                                <div class="suggestion" onclick="selectSuggestion('${name}')">
+                                    ${name}
+                                </div>
+                            `).join('');
+                        suggestions.style.display = 'block';
+                    }
+                }
+            } catch (error) {
+                validation.classList.add('error');
+                validation.textContent = '✗ Validation error: ' + error.message;
+            }
+        }
+        
+        function selectSuggestion(name) {
+            appNameInput.value = name;
+            validateAppName(name);
+        }
+        
+        btnEstimate.addEventListener('click', async () => {
+            if (!lastValidAppName) return;
+            
+            btnEstimate.disabled = true;
+            try {
+                const response = await fetch('/api/v1/clone/estimate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        app_name: lastValidAppName,
+                        dest_path: destPathInput.value || `~/${lastValidAppName.toLowerCase().replace(/\s+/g, '_')}`
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('estimateFiles').textContent = data.total_files;
+                    document.getElementById('estimateTextFiles').textContent = data.text_files;
+                    document.getElementById('estimateSize').textContent = `${data.total_size_mb} MB`;
+                    estimate.classList.add('show');
+                } else {
+                    alert('Error: ' + (data.detail || 'Estimation failed'));
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                btnEstimate.disabled = false;
+            }
+        });
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!lastValidAppName) {
+                alert('Please enter a valid app name');
+                return;
+            }
+            
+            btnClone.disabled = true;
+            loading.classList.add('show');
+            result.classList.remove('show');
+            
+            try {
+                const response = await fetch('/api/v1/clone/execute', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        app_name: lastValidAppName,
+                        dest_path: destPathInput.value || `~/${lastValidAppName.toLowerCase().replace(/\s+/g, '_')}`
+                    })
+                });
+                
+                const data = await response.json();
+                loading.classList.remove('show');
+                
+                if (data.success) {
+                    showSuccess(data);
+                } else {
+                    showError(data.error || 'Clone failed');
+                }
+            } catch (error) {
+                loading.classList.remove('show');
+                showError(error.message);
+            }
+        });
+        
+        function showSuccess(data) {
+            document.getElementById('resultTitle').textContent = '✓ Clone Complete!';
+            document.getElementById('resultTitle').style.color = '#00d4ff';
+            result.classList.add('show', 'success');
+            result.classList.remove('error');
+            
+            document.getElementById('resultMessage').textContent = 
+                `Successfully created '${lastValidAppName}' with ${data.files_cloned} files.`;
+            
+            const pathDiv = document.getElementById('resultPath');
+            pathDiv.textContent = data.dest_path;
+            pathDiv.style.display = 'block';
+            
+            const nextSteps = document.getElementById('nextSteps');
+            nextSteps.innerHTML = `
+                <h4>📍 Next Steps:</h4>
+                <ol>
+                    <li>Navigate to the cloned directory: <code>cd "${data.dest_path}"</code></li>
+                    <li>Run the installer: <code>./install.sh</code> (macOS/Linux) or <code>install.bat</code> (Windows)</li>
+                    <li>Start developing with your custom Amplify instance!</li>
+                </ol>
+            `;
+        }
+        
+        function showError(error) {
+            document.getElementById('resultTitle').textContent = '✗ Clone Failed';
+            document.getElementById('resultTitle').style.color = '#ff1e7e';
+            result.classList.add('show', 'error');
+            result.classList.remove('success');
+            
+            document.getElementById('resultMessage').textContent = error;
+            document.getElementById('resultPath').style.display = 'none';
+            document.getElementById('nextSteps').innerHTML = '';
+            
+            btnClone.disabled = false;
+        }
+        
+        let currentAuthMode = 'login';
+        
+        function openAuthModal(mode) {
+            currentAuthMode = mode;
+            const modal = document.getElementById('authModal');
+            const title = document.getElementById('modalTitle');
+            const usernameGroup = document.getElementById('usernameGroup');
+            const form = document.getElementById('authForm');
+            
+            modal.style.display = 'flex';
+            
+            if (mode === 'signup') {
+                title.textContent = 'Create Account';
+                usernameGroup.style.display = 'block';
+                document.getElementById('authUsername').required = true;
+            } else {
+                title.textContent = 'Login';
+                usernameGroup.style.display = 'none';
+                document.getElementById('authUsername').required = false;
+            }
+            
+            form.reset();
+            document.getElementById('authMessage').style.display = 'none';
+        }
+        
+        function closeAuthModal() {
+            document.getElementById('authModal').style.display = 'none';
+            document.getElementById('authMessage').style.display = 'none';
+        }
+        
+        async function handleAuthSubmit(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+            const messageDiv = document.getElementById('authMessage');
+            
+            try {
+                const endpoint = currentAuthMode === 'signup' ? '/api/v1/auth/register' : '/api/v1/auth/login';
+                const payload = {
+                    email,
+                    password
+                };
+                
+                if (currentAuthMode === 'signup') {
+                    payload.username = document.getElementById('authUsername').value;
+                }
+                
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.detail || 'Authentication failed');
+                }
+                
+                messageDiv.style.background = 'rgba(0, 212, 255, 0.1)';
+                messageDiv.style.color = '#00d4ff';
+                messageDiv.style.borderLeft = '3px solid #00d4ff';
+                messageDiv.textContent = `Success! Token: ${data.access_token.slice(0, 20)}...`;
+                messageDiv.style.display = 'block';
+                
+                localStorage.setItem('authToken', data.access_token);
+                
+                setTimeout(() => closeAuthModal(), 2000);
+            } catch (error) {
+                messageDiv.style.background = 'rgba(255, 30, 126, 0.1)';
+                messageDiv.style.color = '#ff1e7e';
+                messageDiv.style.borderLeft = '3px solid #ff1e7e';
+                messageDiv.textContent = error.message;
+                messageDiv.style.display = 'block';
+            }
+        }
+        
+        document.getElementById('authModal').addEventListener('click', function(e) {
+            if (e.target === this) closeAuthModal();
+        });
+    </script>
+</body>
+</html>

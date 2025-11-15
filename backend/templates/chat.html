@@ -1,0 +1,620 @@
+DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amplify Chat - Vibe Code</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1a2e4a 100%);
+            color: #e2e8f0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+        
+        .sidebar {
+            width: 280px;
+            background: rgba(15, 23, 42, 0.8);
+            border-right: 1px solid rgba(0, 212, 255, 0.2);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .sidebar-header {
+            padding: 1.5rem 1rem;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+        }
+        
+        .new-chat-btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            color: #0f172a;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .new-chat-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 212, 255, 0.3);
+        }
+        
+        .chat-history {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.5rem;
+        }
+        
+        .chat-item {
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            background: rgba(0, 212, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.1);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 0.9rem;
+        }
+        
+        .chat-item:hover {
+            background: rgba(0, 212, 255, 0.15);
+            border-color: rgba(0, 212, 255, 0.3);
+        }
+        
+        .chat-item.active {
+            background: rgba(0, 212, 255, 0.2);
+            border-color: #00d4ff;
+            color: #00d4ff;
+        }
+        
+        .chat-time {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-top: 0.25rem;
+        }
+        
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .sidebar::-webkit-scrollbar-track {
+            background: rgba(0, 212, 255, 0.05);
+        }
+        
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(0, 212, 255, 0.3);
+            border-radius: 3px;
+        }
+        
+        .content-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: rgba(15, 23, 42, 0.95);
+            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            background: linear-gradient(135deg, #00d4ff, #ff1e7e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 1.5rem;
+        }
+        
+        .header-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        select {
+            padding: 0.6rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 0.5rem;
+            color: #e2e8f0;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        
+        select:focus {
+            outline: none;
+            border-color: #00d4ff;
+            background: rgba(0, 212, 255, 0.05);
+        }
+        
+        .btn {
+            padding: 0.6rem 1.2rem;
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            color: #0f172a;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 212, 255, 0.3);
+        }
+        
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .message {
+            display: flex;
+            gap: 1rem;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .message.user {
+            justify-content: flex-end;
+        }
+        
+        .message-bubble {
+            max-width: 70%;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            word-wrap: break-word;
+        }
+        
+        .message.user .message-bubble {
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            color: #0f172a;
+            border: none;
+        }
+        
+        .message.assistant .message-bubble {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            color: #e2e8f0;
+        }
+        
+        .message-label {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-bottom: 0.25rem;
+        }
+        
+        .typing {
+            display: flex;
+            gap: 0.4rem;
+            padding: 1rem;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00d4ff;
+            animation: typing 1.4s infinite;
+        }
+        
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes typing {
+            0%, 60%, 100% {
+                opacity: 0.3;
+                transform: translateY(0);
+            }
+            30% {
+                opacity: 1;
+                transform: translateY(-10px);
+            }
+        }
+        
+        .input-area {
+            background: rgba(15, 23, 42, 0.95);
+            border-top: 1px solid rgba(0, 212, 255, 0.2);
+            padding: 1.5rem 2rem;
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .input-wrapper {
+            flex: 1;
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        input[type="text"] {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 0.5rem;
+            color: #e2e8f0;
+            font-size: 1rem;
+        }
+        
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #00d4ff;
+            background: rgba(0, 212, 255, 0.05);
+        }
+        
+        .messages::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .messages::-webkit-scrollbar-track {
+            background: rgba(0, 212, 255, 0.05);
+        }
+        
+        .messages::-webkit-scrollbar-thumb {
+            background: rgba(0, 212, 255, 0.3);
+            border-radius: 4px;
+        }
+        
+        .messages::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 212, 255, 0.5);
+        }
+        
+        .error {
+            background: rgba(255, 30, 126, 0.1);
+            border: 1px solid rgba(255, 30, 126, 0.3);
+            color: #ff1e7e;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin: 1rem;
+        }
+        
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: transparent;
+            color: #00d4ff;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            color: #ff1e7e;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-wrapper">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <button class="new-chat-btn" onclick="newChat()">➕ New Chat</button>
+            </div>
+            <div class="chat-history" id="chatHistory"></div>
+        </div>
+        
+        <div class="content-wrapper">
+            <div class="header">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <button class="back-btn" onclick="goBack()">← Back</button>
+                    <h1>Amplify Chat</h1>
+                </div>
+                <div class="header-controls">
+                    <select id="modelSelect">
+                        <option value="">Loading models...</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="chat-container">
+                <div class="messages" id="messages"></div>
+                <div class="input-area">
+                    <div class="input-wrapper">
+                        <input 
+                            type="text" 
+                            id="messageInput" 
+                            placeholder="Type your message... (Shift+Enter for new line, Enter to send)"
+                            onkeypress="handleKeyPress(event)"
+                        >
+                        <button class="btn" onclick="sendMessage()">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let sessionId = null;
+        let repoId = null;
+        let authToken = null;
+        
+        async function initChat() {
+            authToken = localStorage.getItem('authToken');
+            
+            if (!authToken) {
+                showError('Not authenticated. Please log in first.');
+                setTimeout(() => window.location.href = '/clone', 2000);
+                return;
+            }
+            
+            await loadModels();
+            await loadChatHistory();
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.innerHTML = '<div class="message assistant"><div class="message-label">Amplify</div><div class="message-bubble">👋 Hey! I\'m Amplify. Ready to vibe code? Send me a message or describe what you want to build!</div></div>';
+        }
+        
+        async function loadModels() {
+            try {
+                const response = await fetch('/api/v1/models/available', {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+                
+                const select = document.getElementById('modelSelect');
+                select.innerHTML = '';
+                
+                if (data.models && data.models.length > 0) {
+                    data.models.forEach(model => {
+                        const option = document.createElement('option');
+                        option.value = model;
+                        option.textContent = model;
+                        select.appendChild(option);
+                    });
+                    select.value = data.models[0];
+                } else {
+                    select.innerHTML = '<option>No models available</option>';
+                }
+            } catch (error) {
+                showError('Failed to load models: ' + error.message);
+            }
+        }
+        
+        async function loadChatHistory() {
+            try {
+                const response = await fetch('/api/v1/chat/sessions/', {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+                
+                const historyDiv = document.getElementById('chatHistory');
+                
+                if (!data.sessions || data.sessions.length === 0) {
+                    historyDiv.innerHTML = '<div style="padding: 1rem; text-align: center; color: #94a3b8; font-size: 0.9rem;">No chats yet</div>';
+                    return;
+                }
+                
+                const sessions = data.sessions.sort((a, b) => 
+                    new Date(b.created_at) - new Date(a.created_at)
+                );
+                
+                historyDiv.innerHTML = sessions.map(session => {
+                    const date = new Date(session.created_at);
+                    const timeStr = formatTime(date);
+                    const title = session.messages && session.messages.length > 0 
+                        ? session.messages[0].content.substring(0, 50)
+                        : 'Chat ' + session.id.substring(0, 8);
+                    
+                    return `
+                        <div class="chat-item" onclick="loadSession('${session.id}')">
+                            <div>${escapeHtml(title)}</div>
+                            <div class="chat-time">${timeStr}</div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Failed to load chat history:', error);
+            }
+        }
+        
+        function formatTime(date) {
+            const now = new Date();
+            const diff = now - date;
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
+            
+            if (minutes < 1) return 'just now';
+            if (minutes < 60) return `${minutes}m ago`;
+            if (hours < 24) return `${hours}h ago`;
+            if (days < 7) return `${days}d ago`;
+            
+            return date.toLocaleDateString();
+        }
+        
+        async function loadSession(sessionIdToLoad) {
+            sessionId = sessionIdToLoad;
+            
+            try {
+                const response = await fetch(`/api/v1/chat/sessions/${sessionId}`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const session = await response.json();
+                
+                const messagesDiv = document.getElementById('messages');
+                messagesDiv.innerHTML = '';
+                
+                if (session.messages) {
+                    session.messages.forEach(msg => {
+                        const role = msg.role === 'user' ? 'user' : 'assistant';
+                        const label = role === 'user' ? 'You' : 'Amplify';
+                        messagesDiv.innerHTML += `
+                            <div class="message ${role}">
+                                <div class="message-label">${label}</div>
+                                <div class="message-bubble">${escapeHtml(msg.content)}</div>
+                            </div>
+                        `;
+                    });
+                }
+                
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                
+                document.querySelectorAll('.chat-item').forEach(item => item.classList.remove('active'));
+                document.querySelector(`[onclick="loadSession('${sessionId}')"]`)?.classList.add('active');
+            } catch (error) {
+                showError('Failed to load session: ' + error.message);
+            }
+        }
+        
+        function newChat() {
+            sessionId = null;
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.innerHTML = '<div class="message assistant"><div class="message-label">Amplify</div><div class="message-bubble">👋 Hey! I\'m Amplify. Ready to vibe code? Send me a message or describe what you want to build!</div></div>';
+            document.getElementById('messageInput').value = '';
+            document.querySelectorAll('.chat-item').forEach(item => item.classList.remove('active'));
+        }
+        
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            const messagesDiv = document.getElementById('messages');
+            
+            messagesDiv.innerHTML += `
+                <div class="message user">
+                    <div class="message-bubble">${escapeHtml(message)}</div>
+                </div>
+            `;
+            
+            input.value = '';
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            
+            const typingIndicator = document.createElement('div');
+            typingIndicator.id = 'typing';
+            typingIndicator.className = 'message assistant';
+            typingIndicator.innerHTML = '<div class="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
+            messagesDiv.appendChild(typingIndicator);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            
+            try {
+                const model = document.getElementById('modelSelect').value;
+                const response = await fetch('/api/v1/chat/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        message,
+                        model: model || 'amplify-general',
+                        session_id: sessionId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.detail || 'Failed to get response');
+                }
+                
+                if (data.session_id) {
+                    sessionId = data.session_id;
+                    await loadChatHistory();
+                }
+                
+                typingIndicator.remove();
+                
+                messagesDiv.innerHTML += `
+                    <div class="message assistant">
+                        <div class="message-label">Amplify</div>
+                        <div class="message-bubble">${escapeHtml(data.content || data.message)}</div>
+                    </div>
+                `;
+                
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            } catch (error) {
+                typingIndicator.remove();
+                showError('Error: ' + error.message);
+            }
+        }
+        
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function showError(error) {
+            const messagesDiv = document.getElementById('messages');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.textContent = error;
+            messagesDiv.appendChild(errorDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        
+        function goBack() {
+            window.location.href = '/clone';
+        }
+        
+        initChat();
+    </script>
+</body>
+</html><!D
